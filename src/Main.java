@@ -1,3 +1,5 @@
+import ru.courses.project.LogEntry;
+import ru.courses.project.Statistics;
 import ru.stepup.exceptioncast.CastomException;
 
 import java.io.BufferedReader;
@@ -7,12 +9,12 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+
         int countPath = 0;
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Укажите путь к файлу без кавычек в начале и конце: ");
             String path = scanner.nextLine();
-
 
             File file = new File(path);
             boolean fileExist = file.exists();
@@ -35,10 +37,8 @@ public class Main {
             countPath++;
             System.out.println("Это файл номер: " + countPath);
 
-
+            Statistics stats = new Statistics();
             int countLine = 0;
-            int yandexBotCount = 0;
-            int googleBotCount = 0;
             try {
                 FileReader fileReader = new FileReader(path);
                 BufferedReader reader =
@@ -50,31 +50,12 @@ public class Main {
                     int length = line.length();
                     countLine++;
 
-                    int start = line.indexOf("(compatible");
-
-                    if (start == -1) {
-                        continue;
+                    try {
+                        LogEntry entry = new LogEntry(line);
+                        stats.addEntry(entry);
+                    } catch (ArrayIndexOutOfBoundsException e){
+                        System.out.println("Пропущена строка: " + line);
                     }
-
-                    String rightName = "";
-                    String firstBrackets = line.substring(start + 1);
-                    String[] parts = firstBrackets.split(";");
-                    if (parts.length >= 2) {
-                        String fragment = parts[1];
-                        rightName = fragment.split("/")[0].trim();
-                    }
-
-                    if (rightName.equals("YandexBot")){
-                        yandexBotCount++;
-                    } else if (rightName.equals("Googlebot")){
-                        googleBotCount++;
-                    }
-
-//                    if(line.contains("YandexBot")){
-//                        yandexBotCount++;
-//                    } else if (line.contains("Googlebot")){
-//                        googleBotCount++;
-//                    }
 
                     if (length > 1024) {
                         throw new CastomException("Кол-во символов в строке не может быть больше 1024 символов");
@@ -84,10 +65,9 @@ public class Main {
                 ex.printStackTrace();
             }
             System.out.println("Общее кол-во строк в файле: " + countLine);
-            System.out.println("Кол-во YandexBot встречаемых в первых скобках: " + yandexBotCount + ". Доля запросов " +
-                    "от YandexBot = " + String.format("%.3f", (double) yandexBotCount/countLine));
-            System.out.println("Кол-во Googlebot встречаемых в первых скобках: " + googleBotCount + ". Доля запросов " +
-                    "от Googlebot = " + String.format("%.3f", (double) googleBotCount/countLine));
+            System.out.println("Средний трафик за час: "  + stats.getTrafficRate());
+            System.out.println("Min Time: " + stats.getMinTime());
+            System.out.println("Max Time: " + stats.getMaxTime());
         }
     }
 }
