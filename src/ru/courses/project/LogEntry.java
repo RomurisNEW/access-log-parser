@@ -29,7 +29,7 @@ public class LogEntry {
 
         String[] methodAndPath = parts[1].split(" ");
         method = HttpMethod.valueOf(methodAndPath[0]);
-        path = methodAndPath[2];
+        path = methodAndPath[1];
 
         String[] respCodeAndSize = parts[2].split(" ");
         responseCode = Integer.parseInt(respCodeAndSize[1]);
