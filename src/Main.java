@@ -5,6 +5,7 @@ import ru.stepup.exceptioncast.CastomException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -70,14 +71,25 @@ public class Main {
             System.out.println("Min Time: " + stats.getMinTime());
             System.out.println("Max Time: " + stats.getMaxTime());
 
-            System.out.println("Список страниц:");
-            for(String page : stats.getPages()){
-                System.out.println(page);
+//            System.out.println("Список найденых страниц:");
+//            for(String page : stats.getPages()){
+//                System.out.println(page);
+//            }
+
+//            System.out.println("Список НЕнайденых страниц:");
+//            for(String notFoundPage : stats.getNotFoundPages()){
+//                System.out.println(notFoundPage);
+//            }
+
+            System.out.println("Статистика BROWSER:");
+            for(Map.Entry<String, Double> entry : stats.getBrowserStatistics().entrySet()){
+                System.out.println(entry.getKey() + " = " + String.format("%.6f", entry.getValue()));
             }
 
+            System.out.println("");
             System.out.println("Статистика ОС:");
             for(Map.Entry<String, Double> entry : stats.getOsStatistics().entrySet()){
-                System.out.println(entry.getKey() + " = " + entry.getValue());
+                System.out.println(entry.getKey() + " = " + String.format("%.6f", entry.getValue()));
             }
 
         }

@@ -12,10 +12,10 @@ public class Statistics {
     private Set<String> pages = new HashSet<>();
     private Map<String, Integer> osCount = new HashMap<>();
 
+    private Set<String> notFoundPages = new HashSet<>();
+    private Map<String, Integer> browserCount = new HashMap<>();
+
     public Statistics() {
-        totalTraffic = 0;
-        minTime = null;
-        maxTime = null;
     }
 
     public void addEntry(LogEntry entry){
@@ -34,6 +34,10 @@ public class Statistics {
             pages.add(entry.getPath());
         }
 
+        if(entry.getResponseCode() == 404){
+            notFoundPages.add(entry.getPath());
+        }
+
         String os = entry.getAgent().getOs();
 
         if (!osCount.containsKey(os)){
@@ -42,14 +46,45 @@ public class Statistics {
             osCount.put(os, osCount.get(os) + 1);
         }
 
+        String browser = entry.getAgent().getBrowser();
+
+        if(!browserCount.containsKey(browser)){
+            browserCount.put(browser, 1);
+        } else {
+            browserCount.put(browser, browserCount.get(browser) + 1);
+        }
+
     }
 
     public Set<String> getPages(){
         return pages;
     }
 
+    public Set<String> getNotFoundPages(){
+        return notFoundPages;
+    }
+
+    public Map<String, Double> getBrowserStatistics(){
+        Map<String, Double> resultBrowser = new HashMap<>();
+
+        int total = 0;
+
+        for (int count : browserCount.values()){
+            total += count;
+        }
+
+        for (Map.Entry<String, Integer> entry : browserCount.entrySet()){
+            String browser = entry.getKey();
+            int count = entry.getValue();
+
+            double share = (double) count / total;
+            resultBrowser.put(browser, share);
+        }
+        return resultBrowser;
+    }
+
     public Map<String, Double> getOsStatistics(){
-        Map<String, Double> result = new HashMap<>();
+        Map<String, Double> resultOs = new HashMap<>();
 
         int total = 0;
 
@@ -62,9 +97,9 @@ public class Statistics {
             int count = entry.getValue();
 
             double share = (double) count / total;
-            result.put(os, share);
+            resultOs.put(os, share);
         }
-        return result;
+        return resultOs;
     }
 
     public double getTrafficRate(){
