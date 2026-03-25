@@ -80,6 +80,7 @@ public class Main {
 //            for(String notFoundPage : stats.getNotFoundPages()){
 //                System.out.println(notFoundPage);
 //            }
+//
 
             System.out.println("Статистика BROWSER:");
             for(Map.Entry<String, Double> entry : stats.getBrowserStatistics().entrySet()){
