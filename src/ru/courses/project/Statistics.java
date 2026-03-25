@@ -9,11 +9,11 @@ public class Statistics {
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
 
-    private Set<String> pages = new HashSet<>();
-    private Map<String, Integer> osCount = new HashMap<>();
+    private final Set<String> pages = new HashSet<>();
+    private final Map<String, Integer> osCount = new HashMap<>();
 
-    private Set<String> notFoundPages = new HashSet<>();
-    private Map<String, Integer> browserCount = new HashMap<>();
+    private final Set<String> notFoundPages = new HashSet<>();
+    private final Map<String, Integer> browserCount = new HashMap<>();
 
     public Statistics() {
     }
