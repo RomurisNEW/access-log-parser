@@ -15,32 +15,34 @@ public class Statistics {
     private final Set<String> notFoundPages = new HashSet<>();
     private final Map<String, Integer> browserCount = new HashMap<>();
 
+    private final List<LogEntry> entries = new ArrayList<>();
+
     public Statistics() {
     }
 
-    public void addEntry(LogEntry entry){
+    public void addEntry(LogEntry entry) {
 
         totalTraffic += entry.getResponseSize();
 
-        if(minTime == null || entry.getTime().isBefore(minTime)){
+        if (minTime == null || entry.getTime().isBefore(minTime)) {
             minTime = entry.getTime();
         }
 
-        if (maxTime == null || entry.getTime().isAfter(maxTime)){
+        if (maxTime == null || entry.getTime().isAfter(maxTime)) {
             maxTime = entry.getTime();
         }
 
-        if(entry.getResponseCode() == 200) {
+        if (entry.getResponseCode() == 200) {
             pages.add(entry.getPath());
         }
 
-        if(entry.getResponseCode() == 404){
+        if (entry.getResponseCode() == 404) {
             notFoundPages.add(entry.getPath());
         }
 
         String os = entry.getAgent().getOs();
 
-        if (!osCount.containsKey(os)){
+        if (!osCount.containsKey(os)) {
             osCount.put(os, 1);
         } else {
             osCount.put(os, osCount.get(os) + 1);
@@ -48,32 +50,34 @@ public class Statistics {
 
         String browser = entry.getAgent().getBrowser();
 
-        if(!browserCount.containsKey(browser)){
+        if (!browserCount.containsKey(browser)) {
             browserCount.put(browser, 1);
         } else {
             browserCount.put(browser, browserCount.get(browser) + 1);
         }
 
+        entries.add(entry);
+
     }
 
-    public Set<String> getPages(){
+    public Set<String> getPages() {
         return pages;
     }
 
-    public Set<String> getNotFoundPages(){
+    public Set<String> getNotFoundPages() {
         return notFoundPages;
     }
 
-    public Map<String, Double> getBrowserStatistics(){
+    public Map<String, Double> getBrowserStatistics() {
         Map<String, Double> resultBrowser = new HashMap<>();
 
         int total = 0;
 
-        for (int count : browserCount.values()){
+        for (int count : browserCount.values()) {
             total += count;
         }
 
-        for (Map.Entry<String, Integer> entry : browserCount.entrySet()){
+        for (Map.Entry<String, Integer> entry : browserCount.entrySet()) {
             String browser = entry.getKey();
             int count = entry.getValue();
 
@@ -83,16 +87,16 @@ public class Statistics {
         return resultBrowser;
     }
 
-    public Map<String, Double> getOsStatistics(){
+    public Map<String, Double> getOsStatistics() {
         Map<String, Double> resultOs = new HashMap<>();
 
         int total = 0;
 
-        for (int count : osCount.values()){
+        for (int count : osCount.values()) {
             total += count;
         }
 
-        for(Map.Entry<String, Integer> entry : osCount.entrySet()){
+        for (Map.Entry<String, Integer> entry : osCount.entrySet()) {
             String os = entry.getKey();
             int count = entry.getValue();
 
@@ -102,19 +106,21 @@ public class Statistics {
         return resultOs;
     }
 
-    public double getTrafficRate(){
-        if(minTime == null || maxTime == null || maxTime == minTime){
+    public double getTrafficRate() {
+        if (minTime == null || maxTime == null || maxTime == minTime) {
             return 0.0;
         }
 
         long hours = Math.abs(ChronoUnit.HOURS.between(maxTime, minTime));
 
-        if(hours == 0){
+        if (hours == 0) {
             return 0.0;
         }
 
-        return (double) totalTraffic/hours;
+        return (double) totalTraffic / hours;
     }
+
+
 
     public int getTotalTraffic() {
         return totalTraffic;
@@ -123,7 +129,55 @@ public class Statistics {
     public LocalDateTime getMinTime() {
         return minTime;
     }
+
     public LocalDateTime getMaxTime() {
         return maxTime;
+    }
+
+    public double getVisitInHour(){
+        long totalVisits = entries.stream()
+                .filter(entry -> !entry.getAgent().isBot())
+                .count();
+
+        long hours = java.time.Duration.between(minTime, maxTime).toHours();
+
+        if(hours == 0){
+            hours = 1;
+        }
+
+        return (double) totalVisits / hours;
+    }
+
+    public  double getErrorsInHour(){
+        long errors = entries.stream()
+                .filter(entry -> entry.getResponseCode() >= 400)
+                .count();
+
+        long hours = java.time.Duration.between(minTime, maxTime).toHours();
+
+        if(hours == 0){
+            hours = 1;
+        }
+
+        return (double) errors / hours;
+    }
+
+    public double getAverageVisitsPerUser(){
+
+        long visits = entries.stream()
+                .filter(entry -> !entry.getAgent().isBot())
+                .count();
+
+        long uniqueUsers = entries.stream()
+                .filter(entry -> !entry.getAgent().isBot())
+                .map(LogEntry::getIpAddr)
+                .distinct()
+                .count();
+
+        if (uniqueUsers == 0){
+            return 0;
+        }
+
+        return (double) visits / uniqueUsers;
     }
 }

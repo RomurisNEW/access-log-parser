@@ -5,7 +5,6 @@ import ru.stepup.exceptioncast.CastomException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -92,6 +91,16 @@ public class Main {
             for(Map.Entry<String, Double> entry : stats.getOsStatistics().entrySet()){
                 System.out.println(entry.getKey() + " = " + String.format("%.6f", entry.getValue()));
             }
+
+            System.out.println("");
+            System.out.println("Среднее количество посещений в час:");
+            System.out.println(String.format("%.2f", stats.getVisitInHour()));
+
+            System.out.println("Среднее количество ошибок в час:");
+            System.out.println(String.format("%.2f", stats.getErrorsInHour()));
+
+            System.out.println("Средняя посещаемость на пользователя:");
+            System.out.println(String.format("%.2f", stats.getAverageVisitsPerUser()));
 
         }
     }
